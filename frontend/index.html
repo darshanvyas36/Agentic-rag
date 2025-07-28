@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Agentic RAG - Admin Panel</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div class="container">
+      <div class="header-container">
+        <h1>📄 Agentic RAG Admin Panel</h1>
+        <a href="chat.html" class="nav-button">Go to Chat 🤖</a>
+      </div>
+      <div class="card">
+        <h2>Upload New Document</h2>
+        <form id="upload-form">
+          <input type="file" id="file-input" required />
+          <button type="submit">Upload</button>
+        </form>
+        <div id="status-message"></div>
+      </div>
+
+      <div class="card">
+        <h2>Uploaded Documents</h2>
+        <div id="document-list">
+          <p>Loading documents...</p>
+        </div>
+      </div>
+    </div>
+    <script src="script.js"></script>
+  </body>
+</html>

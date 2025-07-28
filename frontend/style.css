@@ -1,0 +1,104 @@
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background-color: #f4f7f9;
+    color: #333;
+    margin: 0;
+    padding: 20px;
+}
+
+.container {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+h1, h2 {
+    color: #2c3e50;
+}
+
+/* Add these styles for the new navigation button */
+.header-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.nav-button {
+    background-color: #27ae60; /* A different color for navigation */
+    color: white;
+    padding: 10px 15px;
+    border-radius: 5px;
+    text-decoration: none; /* Removes the underline from the link */
+    font-weight: bold;
+    transition: background-color 0.2s;
+}
+
+.nav-button:hover {
+    background-color: #229954;
+}
+
+.card {
+    background-color: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    margin-bottom: 20px;
+}
+
+#upload-form {
+    display: flex;
+    gap: 10px;
+}
+
+input[type="file"] {
+    flex-grow: 1;
+}
+
+button {
+    background-color: #3498db;
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+button:hover {
+    background-color: #2980b9;
+}
+
+#status-message {
+    margin-top: 15px;
+    font-weight: 500;
+}
+
+.status-success { color: #27ae60; }
+.status-error { color: #c0392b; }
+
+.doc-item {
+    border-bottom: 1px solid #ecf0f1;
+    padding: 10px 0;
+}
+.doc-item:last-child {
+    border-bottom: none;
+}
+.doc-name { font-weight: bold; }
+.doc-meta { font-size: 0.8em; color: #7f8c8d; }
+
+/* Add these styles to style.css */
+.doc-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.delete-btn {
+    background-color: #e74c3c;
+    padding: 5px 10px;
+    font-size: 0.9em;
+}
+
+.delete-btn:hover {
+    background-color: #c0392b;
+}

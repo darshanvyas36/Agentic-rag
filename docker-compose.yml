@@ -1,0 +1,14 @@
+version: '3.8'
+
+# ...
+services:
+  backend:
+    build: .
+    ports:
+      - "8000:8000"
+    volumes:
+      # --- CHANGE THIS LINE ---
+      # Mount a directory instead of a single file
+      - ./data:/app/data
+    env_file:
+      - ./.env

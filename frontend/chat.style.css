@@ -1,0 +1,111 @@
+body {
+    font-family: sans-serif;
+    background: #eef2f5;
+    margin: 0;
+}
+
+.chat-container {
+    max-width: 600px;
+    margin: 50px auto;
+    background: white;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
+    display: flex;
+    flex-direction: column;
+    height: 80vh;
+}
+
+/* Add these styles to chat.style.css */
+
+/* Update chat-header to position the button */
+.chat-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+/* General style for the navigation button */
+.nav-button {
+    color: white;
+    padding: 10px 15px;
+    border-radius: 5px;
+    text-decoration: none; /* Removes the underline from the link */
+    font-weight: bold;
+    transition: background-color 0.2s;
+}
+
+/* Specific color for the admin button */
+.admin-button {
+    background-color: #f39c12; /* Orange color */
+}
+
+.admin-button:hover {
+    background-color: #e67e22;
+}
+
+.chat-header {
+    background: #3498db;
+    color: white;
+    padding: 15px;
+    text-align: center;
+    border-radius: 10px 10px 0 0;
+}
+
+.chat-window {
+    flex-grow: 1;
+    padding: 20px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.message {
+    padding: 10px 15px;
+    border-radius: 18px;
+    max-width: 80%;
+    line-height: 1.5;
+}
+
+.user {
+    background: #3498db;
+    color: white;
+    align-self: flex-end;
+    border-bottom-right-radius: 3px;
+}
+
+.ai {
+    background: #ecf0f1;
+    color: #333;
+    align-self: flex-start;
+    border-bottom-left-radius: 3px;
+}
+
+.thinking {
+    font-style: italic;
+    color: #95a5a6;
+}
+
+.chat-input-area {
+    display: flex;
+    padding: 15px;
+    border-top: 1px solid #ecf0f1;
+}
+
+#chat-input {
+    flex-grow: 1;
+    border: 1px solid #bdc3c7;
+    padding: 10px;
+    border-radius: 20px;
+    outline: none;
+}
+
+#send-btn {
+    background: #2980b9;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    margin-left: 10px;
+    border-radius: 20px;
+    cursor: pointer;
+}

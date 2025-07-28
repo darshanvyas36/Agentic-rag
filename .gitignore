@@ -1,0 +1,15 @@
+# Python
+__pycache__/
+*.pyc
+venv/
+
+# Environment variables
+.env
+
+# Generated data
+# This will ignore the directory containing your FAISS or other data files
+data/
+
+# IDE/Editor specific
+.vscode/
+.idea/

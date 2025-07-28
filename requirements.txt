@@ -1,0 +1,13 @@
+fastapi
+uvicorn
+pydantic
+pydantic-settings
+pymongo
+google-generativeai
+langchain
+# faiss-cpu
+python-docx
+pypdf
+python-multipart
+dnspython
+qdrant-client
