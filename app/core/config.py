@@ -6,8 +6,11 @@ class Settings(BaseSettings):
     MONGO_DB_URL: str
     DB_NAME: str
 
+    # --- ADD THESE TWO LINES ---
+    QDRANT_URL: str
+    QDRANT_API_KEY: str
+
     class Config:
         env_file = ".env"
 
-# Create a single instance of the settings to be used throughout the app
 settings = Settings()
