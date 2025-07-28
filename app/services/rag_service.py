@@ -1,44 +1,50 @@
+import faiss
 import numpy as np
 import google.generativeai as genai
-from qdrant_client import QdrantClient, models
 from app.core.config import settings
+from app.db.database import chunks_collection
 from bson import ObjectId
-import uuid
+import os
 
-# --- Qdrant and Gemini Configuration ---
+# --- FAISS and Gemini Configuration ---
 genai.configure(api_key=settings.GOOGLE_API_KEY)
 EMBEDDING_MODEL = "models/embedding-001"
-QDRANT_COLLECTION_NAME = "rag_documents"
+FAISS_INDEX_PATH = "data/faiss_index.bin"
 DIMENSION = 768
 
-# Initialize Qdrant client
-qdrant_client = QdrantClient(
-    url=settings.QDRANT_URL, 
-    api_key=settings.QDRANT_API_KEY
-)
+def load_or_create_faiss_index(dimension: int) -> faiss.IndexIDMap:
+    """Loads a FAISS index from disk or creates a new one if it doesn't exist."""
+    os.makedirs("data", exist_ok=True)
+    if os.path.exists(FAISS_INDEX_PATH):
+        try:
+            print("Loading existing FAISS index...")
+            return faiss.read_index(FAISS_INDEX_PATH)
+        except Exception as e:
+            print(f"Error loading FAISS index: {e}. Creating a new one.")
+    
+    print("Creating new FAISS index...")
+    index = faiss.IndexFlatL2(dimension)
+    return faiss.IndexIDMap(index)
 
-# Check if the collection exists, and create it if it doesn't
-try:
-    collection_info = qdrant_client.get_collection(collection_name=QDRANT_COLLECTION_NAME)
-    print("✅ Qdrant collection already exists.")
-except Exception as e:
-    print("Qdrant collection not found. Creating new collection...")
-    qdrant_client.create_collection(
-        collection_name=QDRANT_COLLECTION_NAME,
-        vectors_config=models.VectorParams(size=DIMENSION, distance=models.Distance.COSINE),
-    )
-    print("✅ New Qdrant collection created.")
+faiss_index = load_or_create_faiss_index(DIMENSION)
+
+def save_faiss_index():
+    """Saves the current FAISS index to disk."""
+    try:
+        faiss.write_index(faiss_index, FAISS_INDEX_PATH)
+        print("✅ FAISS index saved successfully.")
+    except Exception as e:
+        print(f"❌ Error saving FAISS index: {e}")
 
 
 def add_chunks_to_rag(chunks: list[str], document_id: str):
     """
-    Embeds text chunks and upserts them into the Qdrant collection.
+    Embeds text chunks, adds them to MongoDB and the FAISS index.
     """
     if not chunks:
         return
 
     try:
-        # Generate embeddings
         result = genai.embed_content(
             model=EMBEDDING_MODEL,
             content=chunks,
@@ -46,25 +52,24 @@ def add_chunks_to_rag(chunks: list[str], document_id: str):
         )
         embeddings = result['embedding']
 
-        # Prepare points for Qdrant
-        points = []
+        start_index = faiss_index.ntotal
+        faiss_ids = list(range(start_index, start_index + len(chunks)))
+
+        mongo_chunks = []
         for i, chunk_text in enumerate(chunks):
-            points.append(models.PointStruct(
-                id=str(uuid.uuid4()),  # Generate a unique ID for each point
-                vector=embeddings[i],
-                payload={
-                    "text": chunk_text,
-                    "document_id": document_id
-                }
-            ))
-        
-        # Upsert points to Qdrant
-        qdrant_client.upsert(
-            collection_name=QDRANT_COLLECTION_NAME,
-            points=points,
-            wait=True
-        )
-        print(f"✅ Added {len(chunks)} vectors to Qdrant.")
+            mongo_chunks.append({
+                "_id": ObjectId(),
+                "document_id": document_id,
+                "text": chunk_text,
+                "faiss_id": faiss_ids[i]
+            })
+
+        faiss_index.add_with_ids(np.array(embeddings), np.array(faiss_ids))
+        save_faiss_index()
+
+        if mongo_chunks:
+            chunks_collection.insert_many(mongo_chunks)
+            print(f"✅ Added {len(mongo_chunks)} chunks to MongoDB.")
 
     except Exception as e:
         print(f"❌ Error in add_chunks_to_rag: {e}")
@@ -72,26 +77,25 @@ def add_chunks_to_rag(chunks: list[str], document_id: str):
 
 def search_rag(query: str, top_k: int = 3) -> list[str]:
     """
-    Searches the Qdrant collection for relevant text chunks.
+    Searches the RAG system for relevant text chunks based on a query.
     """
     try:
-        # Embed the query
         query_embedding = genai.embed_content(
             model=EMBEDDING_MODEL,
             content=query,
             task_type="retrieval_query"
         )['embedding']
 
-        # Search Qdrant for similar vectors
-        search_result = qdrant_client.search(
-            collection_name=QDRANT_COLLECTION_NAME,
-            query_vector=query_embedding,
-            limit=top_k
-        )
+        distances, ids = faiss_index.search(np.array([query_embedding]), top_k)
+        retrieved_ids = [int(i) for i in ids[0] if i != -1]
         
-        # Return the text from the payload of the results
-        return [hit.payload['text'] for hit in search_result]
+        if not retrieved_ids:
+            return []
+
+        retrieved_docs = chunks_collection.find({"faiss_id": {"$in": retrieved_ids}})
+        return [doc['text'] for doc in retrieved_docs]
 
     except Exception as e:
         print(f"❌ Error in RAG search: {e}")
         return []
+    
